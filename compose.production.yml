@@ -1,6 +1,6 @@
 services:
   caddy:
-    image: ${CADDY_IMAGE:-ghcr.io/owner/maintenance-proxy:latest}
+    image: ${CADDY_IMAGE:-ghcr.io/lvckyapi/caddy-maintenance-proxy:latest}
     container_name: "${PROJECT_NAME:-maintenance_proxy}_caddy"
     restart: unless-stopped
     environment:
@@ -15,9 +15,9 @@ services:
       - "traefik.http.routers.${PROJECT_NAME:-maintenance_proxy}_caddy.priority=1000000"
       - "traefik.http.services.${PROJECT_NAME:-maintenance_proxy}_caddy.loadbalancer.server.port=80"
     networks:
-      - traefik
+      - traefik-proxy
 
 networks:
-  traefik:
+  traefik-proxy:
     external: true
     name: ${TRAEFIK_NETWORK:-traefik-proxy}

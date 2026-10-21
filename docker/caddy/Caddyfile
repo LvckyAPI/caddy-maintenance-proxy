@@ -1,4 +1,20 @@
+(maintenance_json) {
+	header Content-Type "application/json; charset=utf-8"
+	header Cache-Control "no-store"
+	respond `{"message":"maintenance"}` 503
+}
+
 :80 {
+	@acceptJson header Accept *application/json*
+	handle @acceptJson {
+		import maintenance_json
+	}
+
+	@contentJson header Content-Type *application/json*
+	handle @contentJson {
+		import maintenance_json
+	}
+
 	@files path_regexp files \.[A-Za-z0-9]{1,8}$
 	handle @files {
 		reverse_proxy {$CADDY_UPSTREAM:https://www.e-recht24.de} {
