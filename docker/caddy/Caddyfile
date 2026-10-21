@@ -1,0 +1,15 @@
+:80 {
+	@files path_regexp files \.[A-Za-z0-9]{1,8}$
+	handle @files {
+		reverse_proxy {$CADDY_UPSTREAM:https://www.e-recht24.de} {
+			header_up Host {upstream_hostport}
+		}
+	}
+
+	handle {
+		rewrite * {$CADDY_UPSTREAM_PATH:/}
+		reverse_proxy {$CADDY_UPSTREAM:https://www.e-recht24.de} {
+			header_up Host {upstream_hostport}
+		}
+	}
+}
