@@ -1,6 +1,6 @@
 services:
   caddy:
-    image: ${CADDY_IMAGE:-ghcr.io/lvckyapi/caddy-maintenance-proxy:latest}
+    image: ghcr.io/lvckyapi/caddy-maintenance-proxy:latest
     container_name: "${PROJECT_NAME:-maintenance_proxy}_caddy"
     restart: unless-stopped
     environment:
