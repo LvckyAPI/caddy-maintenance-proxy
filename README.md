@@ -2,6 +2,8 @@
 
 Caddy reverse proxy for a maintenance page. Traefik sends every request to this container with priority `1000000`. Caddy returns the content of one upstream page. The browser stays on the host it called. There is no redirect.
 
+If the upstream answers with a redirect, Caddy fetches that target and returns the page. The response has no `Location` header.
+
 The Caddyfile is baked into the image. The server does not mount a volume.
 
 ## What it shows

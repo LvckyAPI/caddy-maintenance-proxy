@@ -4,6 +4,20 @@
 	respond `{"message":"maintenance"}` 503
 }
 
+(proxy_upstream) {
+	reverse_proxy {$CADDY_UPSTREAM:https://www.e-recht24.de} {
+		header_up Host {upstream_hostport}
+		@redirected status 301 302 303 307 308
+		handle_response @redirected {
+			rewrite {rp.header.Location}
+			uri path_regexp "^https?://[^/]+(/.*)?$" "$1"
+			reverse_proxy {$CADDY_UPSTREAM:https://www.e-recht24.de} {
+				header_up Host {upstream_hostport}
+			}
+		}
+	}
+}
+
 :80 {
 	@acceptJson header Accept *application/json*
 	handle @acceptJson {
@@ -17,15 +31,11 @@
 
 	@files path_regexp files \.[A-Za-z0-9]{1,8}$
 	handle @files {
-		reverse_proxy {$CADDY_UPSTREAM:https://www.e-recht24.de} {
-			header_up Host {upstream_hostport}
-		}
+		import proxy_upstream
 	}
 
 	handle {
 		rewrite * {$CADDY_UPSTREAM_PATH:/}
-		reverse_proxy {$CADDY_UPSTREAM:https://www.e-recht24.de} {
-			header_up Host {upstream_hostport}
-		}
+		import proxy_upstream
 	}
 }
