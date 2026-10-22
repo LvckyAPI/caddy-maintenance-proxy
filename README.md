@@ -6,6 +6,27 @@ If the upstream answers with a redirect, Caddy fetches that target and returns t
 
 The Caddyfile is baked into the image. The server does not mount a volume.
 
+## Why it exists
+
+On 21 October 2026, planning, documentation and the search for a way to take the customer sites offline started at 11:00 Europe/Berlin. This image is the switch that came out of that. Well before 16:00 Europe/Berlin a lot of sites were already down. Shortly before 16:00 (14:00 UTC) everything that could be taken down was down, more than 100 projects and sites, either through this Caddy container or by shutting the server off.
+
+The reason was PHP2Shell, two bugs in the PHP runtime. Customer sites sit behind Traefik. Traefik talks to nginx, and nginx talks to PHP, so a request that reaches the app reaches the runtime.
+
+| CVE | Bug | Impact |
+| --- | --- | --- |
+| [CVE-2026-109618](https://www.cve.org/CVERecord?id=CVE-2026-109618) | Out-of-memory corruption | Execute code without authentication as the PHP web worker. |
+| [CVE-2026-109619](https://nvd.nist.gov/vuln/detail/cve-2026-109619) | Stale global state across requests | A use-after-free can disclose worker memory or execute code. |
+
+Sources: [php2shell.com](https://www.php2shell.com/), [German Wikipedia](https://de.wikipedia.org/wiki/PHP2Shell).
+
+Iven Schlenther built this for the eRecht24 services. The whole team could use the same image for every other customer.
+
+The package exists so a normal deploy takes the sites down. The service goes into the project's compose file. A developer ships it with a staging deploy. That deploy is enough. There is no production deploy, and nobody has to log into the server and change Traefik by hand. Any developer can pull the switch, not only the two maintainers.
+
+The router rule is `PathPrefix(/)` with priority `1000000` on the `https` entrypoint. There is no `Host()` check. Traefik picks the highest priority, so this one container wins over every application router on that Traefik. Production and staging share it, so both go down together. Caddy does not forward the request to nginx or PHP. It proxies one maintenance page and keeps the browser on the host it called. API clients that send `Accept: application/json` or `Content-Type: application/json` get `503` and `{"message":"maintenance"}`.
+
+The login service below is the compose snippet. Remove the container and Traefik routes to the applications again.
+
 ## What it shows
 
 `CADDY_UPSTREAM` is the origin, for example `https://www.e-recht24.de`.
