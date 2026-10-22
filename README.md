@@ -19,7 +19,7 @@ The reason was PHP2Shell, two bugs in the PHP runtime. Customer sites sit behind
 
 Sources: [php2shell.com](https://www.php2shell.com/), [German Wikipedia](https://de.wikipedia.org/wiki/PHP2Shell).
 
-Iven Schlenther built this for the eRecht24 services. The whole team could use the same image for every other customer.
+I built this for the eRecht24 services. This is my private repository. The whole team could use the same image for every other customer.
 
 The package exists so a normal deploy takes the sites down. The service goes into the project's compose file. A developer ships it with a staging deploy. That deploy is enough. There is no production deploy, and nobody has to log into the server and change Traefik by hand. Any developer can pull the switch, not only the two maintainers.
 
